@@ -3,7 +3,7 @@ Personal bash and vim profile
 
 ## Git Installation
 ```
-cat <<EOF > $HOME/.profile_setup.sh && bash $HOME/.profile_setup.sh
+cat <<'EOF' | bash
 #!/bin/bash
 
 wkdir=$(mktemp -d)
@@ -25,7 +25,7 @@ EOF
 
 ## HTTP Installation
 ```
-cat <<EOF > $HOME/.profile_setup.sh && bash $HOME/.profile_setup.sh
+cat <<'EOF' | bash
 #!/bin/bash
 
 wkfile=$(mktemp)
