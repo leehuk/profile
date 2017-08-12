@@ -1,0 +1,24 @@
+set background=dark
+colorscheme slate
+
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#fnamemod = ':t'
+
+set shiftwidth=4
+set ts=4
+
+nmap <C-q> :bnext!<CR>
+nmap <C-a> :bprevious!<CR>
+nmap <C-s>q :bprevious<CR>:bdelete #<CR>
+nmap <C-s>x :bprevious!<CR>:bdelete! #<CR>
+imap <C-q> <ESC>:bnext!<CR>
+imap <C-a> <ESC>:bprevious!<CR>
+
+nmap <C-e> :wincmd w<CR>
+imap <C-e> <ESC>:wincmd w<CR>
+
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
+autocmd VimEnter * NERDTree | wincmd w
+
+execute pathogen#infect()

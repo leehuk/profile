@@ -1,0 +1,58 @@
+## Prompt
+##
+
+# git_branch()
+#	Locates the current git branch to add to the prompt
+git_branch() {
+	branch=$(git branch 2>/dev/null | head -n1)
+	if [[ -n "$branch" ]]; then
+		branch1=${branch/#* /}
+		branch=${branch1/)/}
+		echo "($branch)"
+	fi
+}
+
+# terminal_newline()
+#	Rewrites PS1 to either include a newline or not, dependent on current position
+terminal_newline() {
+	if [ $(terminal_column) != 0 ]; then
+		export PS1="\n$PS1_BASE"
+	else
+		export PS1="$PS1_BASE"
+	fi
+}
+
+# terminal_column
+#   Detects the current terminal column position
+terminal_column() {
+	exec < /dev/tty
+	local oldstty=$(stty -g)
+	stty raw -echo min 0
+	echo -en "\033[6n" > /dev/tty
+	local pos
+	IFS=';' read -r -d R -a pos
+	stty $oldstty
+	echo "$((${pos[1]} - 1))"
+}
+
+export LS_COLORS="di=94:ln=96:so=32:pi=33:ex=97:bd=93:cd=93:su=91:sg=91:tw=34"
+export PS1_BASE="\[\033]0;\u@\h:\W\007\]\[\033[38;5;6m\][\[$(tput sgr0)\]\[\033[38;5;15m\]\A \[$(tput sgr0)\]\[\033[38;5;7m\]\u@\h\[$(tput sgr0)\]\[\033[38;5;15m\]:\[$(tput sgr0)\]\[\033[38;5;7m\]\w\[$(tput sgr0)\]\[\033[38;5;9m\]\$(git_branch)\[$(tput sgr0)\]\[\033[38;5;6m\]]\[$(tput sgr0)\]\[\033[38;5;7m\]\\$\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"
+export PROMPT_COMMAND="terminal_newline"
+
+## History Settings
+##
+export HISTCONTROL="ignoreboth"
+export HISTTIMEFORMAT="%d/%m/%Y %H:%M:%S "
+
+## Key Bindings
+##
+# Ctrl-Left and Ctrl-Right
+bind '"\e[1;5C": forward-word'
+bind '"\e[1;5D": backward-word'
+# Unbind Ctrl-S Ctrl-Q
+stty stop ''
+stty start ''
+
+## Aliases
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
