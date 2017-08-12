@@ -44,7 +44,7 @@ done
 
 for i in vim/autoload vim/bundle; do
     rm -rf $HOME/.$i
-	mkdir -p $HOME/.$i
+    mkdir -p $HOME/.$i
     cp -r $wkdir/profile-master/$i $HOME/.vim/
 done
 
