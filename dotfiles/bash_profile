@@ -1,28 +1,43 @@
 ## Prompt
 ##
 
-# git_branch()
-#	Locates the current git branch to add to the prompt
-git_branch() {
-	branch=$(git branch 2>/dev/null | head -n1)
+export ANSI_LRED="\[\033[38;5;9m\]"
+export ANSI_DRED="\[\033[38;5;1m\]"
+export ANSI_LGRN="\[\033[38;5;10m\]"
+export ANSI_DGRN="\[\033[38;5;2m\]"
+export ANSI_LYLW="\[\033[38;5;11m\]"
+export ANSI_DYLW="\[\033[38;5;3m\]"
+export ANSI_LBLU="\[\033[38;5;12m\]"
+export ANSI_DBLU="\[\033[38;5;4m\]"
+export ANSI_LPNK="\[\033[38;5;13m\]"
+export ANSI_DPNK="\[\033[38;5;5m\]"
+export ANSI_LCYN="\[\033[38;5;14m\]"
+export ANSI_DCYN="\[\033[38;5;6m\]"
+export ANSI_LGRY="\[\033[38;5;7m\]"
+export ANSI_DGRY="\[\033[38;5;8m\]"
+export ANSI_WHT="\[\033[38;5;15m\]"
+export ANSI_RST="\[$(tput sgr0)\]"
+
+# terminal_prompt_git()
+#	Sets PS1_PROMPT_GIT, ready for terminal_prompt()
+terminal_prompt_git() {
+	branch=$(git branch -v 2>/dev/null | head -n1)
 	if [[ -n "$branch" ]]; then
-		branch1=${branch/#* /}
-		branch=${branch1/)/}
-		echo "($branch)"
-	fi
-}
-
-# terminal_newline()
-#	Rewrites PS1 to either include a newline or not, dependent on current position
-terminal_newline() {
-	if [ $(terminal_column) != 0 ]; then
-		export PS1="\n$PS1_BASE"
+		if [[ $branch =~ ^\*\ \(detached\ from\ (.*?)\) ]]; then 
+			export PS1_BASE_GIT="${ANSI_LPNK}(${ANSI_RST}${BASH_REMATCH[1]}${ANSI_LPNK})${ANSI_RST}"
+		elif [[ $branch =~ ^\*\ (.+?)\ [0-9a-f]+\ \[ahead.*\] ]]; then
+			export PS1_BASE_GIT="${ANSI_DRED}(${BASH_REMATCH[1]})${ANSI_RST}"
+		elif [[ $branch =~ ^\*\ (.+?)\ [0-9a-f]+\   ]]; then
+			export PS1_BASE_GIT="${ANSI_DGRN}(${ANSI_RST}${BASH_REMATCH[1]}${ANSI_DGRN})${ANSI_RST}"
+		else
+			export PS1_BASE_GIT="${ANSI_DRED}(???)${ANSI_RST}"
+		fi
 	else
-		export PS1="$PS1_BASE"
+		export PS1_BASE_GIT=""
 	fi
 }
 
-# terminal_column
+# terminal_column()
 #   Detects the current terminal column position
 terminal_column() {
 	exec < /dev/tty
@@ -35,9 +50,35 @@ terminal_column() {
 	echo "$((${pos[1]} - 1))"
 }
 
+# terminal_prompt()
+#	Rewrites PS1 to either include a newline or not, dependent on current position
+terminal_prompt() {
+	ps1_col=$(terminal_column)
+
+	if [ $ps1_col != '0' ]; then
+		export PS1="\n${PS1_BASE_LEFT}${PS1_BASE_GIT}${PS1_BASE_RIGHT}"
+	else
+		export PS1="${PS1_BASE_LEFT}${PS1_BASE_GIT}${PS1_BASE_RIGHT}"
+	fi
+}
+
+export PS1_BASE_TITLE="\[\033]0;\u@\h:\W\007\]"
+export PS1_BASE_LEFTDIV="${ANSI_DCYN}[${ANSI_RST}"
+export PS1_BASE_TIME="${ANSI_WHT}\A${ANSI_RST}"
+export PS1_BASE_USER="${ANSI_LGRY}\u@\h${ANSI_RST}"
+export PS1_BASE_USERPATHDIV="${ANSI_WHT}:${ANSI_RST}"
+export PS1_BASE_PATH="${ANSI_LGRY}\w${ANSI_RST}"
+export PS1_BASE_RIGHTDIV="${ANSI_DCYN}]${ANSI_RST}"
+export PS1_BASE_PROMPT="${ANSI_LGRY}\$${ANSI_RST}"
+
+export PS1_BASE_LEFT="${PS1_BASE_TITLE}${PS1_BASE_LEFTDIV}${PS1_BASE_TIME} ${PS1_BASE_USER}${PS1_BASE_USERPATHDIV}${PS1_BASE_PATH}"
+export PS1_BASE_RIGHT="${PS1_BASE_RIGHTDIV}${PS1_BASE_PROMPT} "
+
+export PROMPT_COMMAND="terminal_prompt_git;terminal_prompt"
+
+## LS COLOURS
+##
 export LS_COLORS="di=94:ln=96:so=32:pi=33:ex=97:bd=93:cd=93:su=91:sg=91:tw=34"
-export PS1_BASE="\[\033]0;\u@\h:\W\007\]\[\033[38;5;6m\][\[$(tput sgr0)\]\[\033[38;5;15m\]\A \[$(tput sgr0)\]\[\033[38;5;7m\]\u@\h\[$(tput sgr0)\]\[\033[38;5;15m\]:\[$(tput sgr0)\]\[\033[38;5;7m\]\w\[$(tput sgr0)\]\[\033[38;5;9m\]\$(git_branch)\[$(tput sgr0)\]\[\033[38;5;6m\]]\[$(tput sgr0)\]\[\033[38;5;7m\]\\$\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"
-export PROMPT_COMMAND="terminal_newline"
 
 ## History Settings
 ##
