@@ -44,6 +44,10 @@ export PROMPT_COMMAND="terminal_newline"
 export HISTCONTROL="ignoreboth"
 export HISTTIMEFORMAT="%d/%m/%Y %H:%M:%S "
 
+## Editor Settings
+##
+export EDITOR="vim"
+
 ## Key Bindings
 ##
 # Ctrl-Left and Ctrl-Right
