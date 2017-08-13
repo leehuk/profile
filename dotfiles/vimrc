@@ -8,17 +8,23 @@ set shiftwidth=4
 set ts=4
 
 nmap <C-q> :bnext!<CR>
+imap <C-q> <ESC>:bnext!<CR>
 nmap <C-a> :bprevious!<CR>
+imap <C-a> <ESC>:bprevious!<CR>
 nmap <C-s>q :bprevious<CR>:bdelete #<CR>
 nmap <C-s>x :bprevious!<CR>:bdelete! #<CR>
-imap <C-q> <ESC>:bnext!<CR>
-imap <C-a> <ESC>:bprevious!<CR>
 
 nmap <C-e> :wincmd w<CR>
 imap <C-e> <ESC>:wincmd w<CR>
 
+nmap <C-n> :NERDTreeToggle<CR>
+imap <C-n> <ESC>:NERDTreeToggle<CR>
+
+" Close nerdtree when its the last remaining window
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
-autocmd VimEnter * NERDTree | wincmd w
+" Automatically open nerdtree when no files are specified
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
 execute pathogen#infect()
