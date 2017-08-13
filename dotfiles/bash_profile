@@ -31,7 +31,7 @@ terminal_prompt_git() {
 			export PS1_BASE_GIT=" ${ANSI_DRED}(${ANSI_RST}${BASH_REMATCH[1]}${ANSI_DRED})${ANSI_RST}"
 		# Normal branch status
 		elif [[ $branch =~ ^\*\ ([^[:space:]]+)\ [0-9a-f]+\   ]]; then
-			status=$(git status | egrep '^(Changes not staged|Untracked files|Changes to be committed)')
+			status=$(git status | egrep '^#? ?(Changes not staged|Untracked files|Changes to be committed)')
 
 			# Status is normal
 			if [ $? -eq 0 ]; then
