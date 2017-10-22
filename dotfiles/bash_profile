@@ -76,16 +76,19 @@ _prompt_set_git() {
 				fi
 
 				local branch_status_a=${details[@]:2}
-				local branch_status=${extras_a[*]}
-				branch_status=${branch_status#[}
-				branch_status=${branch_status%]}
-				branch_status=${branch_status/,/}
+				local branch_status=${branch_status_a[*]}
 
-				if [[ $branch_status =~ ahead[[:space:]]([0-9]+) ]]; then
-					_GIT_BRANCH_AHEAD=${BASH_REMATCH[1]}
-				fi
-				if [[ $branch_status =~ behind[[:space:]]([0-9]+) ]]; then
-					_GIT_BRANCH_BEHIND=${BASH_REMATCH[1]}
+				if [ -n "$branch_status" ]; then
+					branch_status=${branch_status#[}
+					branch_status=${branch_status%]}
+					branch_status=${branch_status/,/}
+
+					if [[ $branch_status =~ ahead[[:space:]]([0-9]+) ]]; then
+						_GIT_BRANCH_AHEAD=${BASH_REMATCH[1]}
+					fi
+					if [[ $branch_status =~ behind[[:space:]]([0-9]+) ]]; then
+						_GIT_BRANCH_BEHIND=${BASH_REMATCH[1]}
+					fi
 				fi
 				;;
 			# file modifications
@@ -97,7 +100,7 @@ _prompt_set_git() {
 						((_GIT_FILES_CHANGED++))
 						;;
 					"??")
-						((_GIT_FILES_UNKNOWN++))
+						((_GIT_FILES_UNTRACKED++))
 						;;
 					*)
 						echo "Git Status: Unknown ${details[0]}"
