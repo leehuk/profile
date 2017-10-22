@@ -80,6 +80,13 @@ _prompt_set_git() {
 				branch_status=${branch_status#[}
 				branch_status=${branch_status%]}
 				branch_status=${branch_status/,/}
+
+				if [[ $branch_status =~ ahead[[:space:]]([0-9]+) ]]; then
+					_GIT_BRANCH_AHEAD=${BASH_REMATCH[1]}
+				fi
+				if [[ $branch_status =~ behind[[:space:]]([0-9]+) ]]; then
+					_GIT_BRANCH_BEHIND=${BASH_REMATCH[1]}
+				fi
 				;;
 			# file modifications
 			*)
