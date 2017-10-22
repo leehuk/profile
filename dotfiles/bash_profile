@@ -1,6 +1,10 @@
 ## Prompt
 ##
 
+## Configuration
+# Output Prompt Generation Timings
+export PROMPT_TIMINGS=0
+
 export ANSI_LRED="\[\033[38;5;9m\]"
 export ANSI_DRED="\[\033[38;5;1m\]"
 export ANSI_LGRN="\[\033[38;5;10m\]"
@@ -18,40 +22,122 @@ export ANSI_DGRY="\[\033[38;5;8m\]"
 export ANSI_WHT="\[\033[38;5;15m\]"
 export ANSI_RST="\[$(tput sgr0)\]"
 
-# terminal_prompt_git()
-#	Sets PS1_PROMPT_GIT, ready for terminal_prompt()
-terminal_prompt_git() {
-	branch=$(git branch -v 2>/dev/null | head -n1)
-	if [[ -n "$branch" ]]; then
-		# Detached from a branch
-		if [[ $branch =~ ^\*\ \(detached\ from\ ([^[:space:]]+)\) ]]; then 
-			export PS1_BASE_GIT=" ${ANSI_LPNK}(${ANSI_RST}${BASH_REMATCH[1]}${ANSI_LPNK})${ANSI_RST}"
-		# Unpushed changes
-		elif [[ $branch =~ ^\*\ ([^[:space:]]+)\ [0-9a-f]+\ \[ahead.*\] ]]; then
-			export PS1_BASE_GIT=" ${ANSI_DRED}(${ANSI_RST}${BASH_REMATCH[1]}${ANSI_DRED})${ANSI_RST}"
-		# Normal branch status
-		elif [[ $branch =~ ^\*\ ([^[:space:]]+)\ [0-9a-f]+\   ]]; then
-			status=$(git status | egrep '^#? ?(Changes not staged|Untracked files|Changes to be committed)')
-
-			# Status is normal
-			if [ $? -eq 0 ]; then
-				export PS1_BASE_GIT=" ${ANSI_LYLW}(${ANSI_RST}${BASH_REMATCH[1]}${ANSI_LYLW})${ANSI_RST}"
-			# Uncommitted changes
-			else
-				export PS1_BASE_GIT=" ${ANSI_DGRN}(${ANSI_RST}${BASH_REMATCH[1]}${ANSI_DGRN})${ANSI_RST}"
-			fi
-		# Unknown status
-		else
-			export PS1_BASE_GIT=" ${ANSI_DRED}(???)${ANSI_RST}"
-		fi
-	else
-		export PS1_BASE_GIT=""
+_prompt_timings_start() {
+	if [ $PROMPT_TIMINGS != 0 ]; then
+		local _START_TIME=$(date +%s%N)
+		export START_TIME=${_START_TIME:0:13}
 	fi
 }
 
-# terminal_column()
-#   Detects the current terminal column position
-terminal_column() {
+_prompt_set_timings() {
+	if [ $PROMPT_TIMINGS != 0 ]; then
+		local _STOP_TIME=$(date +%s%N)
+		local STOP_TIME=${_STOP_TIME:0:13}
+
+		duration=$(($STOP_TIME-$START_TIME))
+		export PS1_TIMINGS=" ${ANSI_DGRY}{$duration}${ANSI_RST}"
+	else
+		export PS1_TIMINGS=""
+	fi
+}
+
+_prompt_set_git() {
+	local _GIT_REPO=0
+
+	local _GIT_BRANCH_LOCAL=""
+	local _GIT_BRANCH_REMOTE=""
+	local _GIT_BRANCH_BEHIND=0
+	local _GIT_BRANCH_AHEAD=0
+
+	local _GIT_FILES_CHANGED=0
+	local _GIT_FILES_CONFLICT=0
+	local _GIT_FILES_DELETED=0
+	local _GIT_FILES_UNTRACKED=0
+
+	local IFS=$'\n'
+	for line in `git status --branch --porcelain=2 2>/dev/null`; do
+		unset IFS
+		case $line in
+			"fatal: Not a git repository"*)
+				break
+				;;
+			"# branch.head"*)
+				details=(${line})
+				_GIT_REPO=1
+				_GIT_BRANCH_LOCAL=${details[2]}
+				;;
+			"# branch.upstream"*)
+				details=(${line})
+				_GIT_BRANCH_REMOTE=${details[2]}
+				;;
+			"# branch.ab"*)
+				details=(${line})
+				_GIT_BRANCH_AHEAD=${details[2]#+}
+				_GIT_BRANCH_BEHIND=${details[3]#-}
+				;;
+			# other unneeded branch information
+			"#"*)
+				;;
+			# file modifications
+			"1 "*) ;&
+			"2 "*)
+				details=(${line})
+				case ${details[1]} in
+					"D.") ;&
+					".D")
+						((_GIT_STATUS_DELETED++))
+						;;
+					"M.") ;&
+					".M") ;&
+					"MM")
+						((_GIT_STATUS_CHANGED++))
+						;;
+					*)
+						echo "Git Status: Unknown ${details[1]}"
+						;;
+				esac
+				;;
+			# untracked file
+			"? "*)
+				((_GIT_STATUS_UNTRACKED++))
+				;;
+		esac
+	done
+
+	if [ $_GIT_REPO -eq 1 ]; then
+		PS1_GIT_BRANCH=${_GIT_BRANCH}
+		[ -z "$_GIT_BRANCH_REMOTE" ] && PS1_GIT_BRANCH="${ANSI_DRED}//${ANSI_RST}${PS1_GIT_BRANCH}"
+
+		if [ $_GIT_STATUS_CONFLICT -ne 0 ]; then
+			PS1_GIT_BCOL="$ANSI_DRED"
+		elif [ $_GIT_BRANCH_BEHIND -ne 0 ] && [ $_GIT_BRANCH_AHEAD -ne 0 ]; then
+			PS1_GIT_BCOL="$ANSI_LBLU"
+		elif [ $_GIT_BRANCH_BEHIND -ne 0 ]; then
+			PS1_GIT_BCOL="$ANSI_DPNK"
+		elif [ $_GIT_BRANCH_AHEAD -ne 0 ]; then
+			PS1_GIT_BCOL="$ANSI_LYLW"
+		else
+			PS1_GIT_BCOL="$ANSI_DGRN"
+		fi
+
+		PS1_GIT_LEFT="${PS1_GIT_BCOL}(${ANSI_RST}"
+		PS1_GIT_RIGHT="${PS1_GIT_BCOL})${ANSI_RST}"
+
+		if [ $_GIT_STATUS_CHANGED -ne 0 ] || [ $_GIT_STATUS_DELETED -ne 0 ] || [ $_GIT_STATUS_UNTRACKED -ne 0 ]; then
+			PS1_GIT_FILES="${ANSI_DYLW}**${ANSI_RST}"
+		else
+			PS1_GIT_FILES=""
+		fi
+
+		export PS1_GIT=" ${PS1_GIT_LEFT}${PS1_GIT_BRANCH}${PS1_GIT_FILES}${PS1_GIT_RIGHT}"
+	else
+		export PS1_GIT=""
+	fi
+}
+
+# _prompt_set_column()
+#   Detects the current terminal column position, saving it to PS1_COLUMN
+_prompt_set_column() {
 	exec < /dev/tty
 	local oldstty=$(stty -g)
 	stty raw -echo min 0
@@ -59,18 +145,16 @@ terminal_column() {
 	local pos
 	IFS=';' read -r -d R -a pos
 	stty $oldstty
-	echo "$((${pos[1]} - 1))"
+	export PS1_COLUMN=$((${pos[1]} - 1))
 }
 
-# terminal_prompt()
-#	Rewrites PS1 to either include a newline or not, dependent on current position
-terminal_prompt() {
-	ps1_col=$(terminal_column)
-
-	if [ $ps1_col != '0' ]; then
-		export PS1="\n${PS1_BASE_LEFT}${PS1_BASE_GIT}${PS1_BASE_RIGHT}"
+# _prompt_set()
+#	Finalises PS1 prompt, with a newline if required
+_prompt_set() {
+	if [ $PS1_COLUMN != '0' ]; then
+		export PS1="\n${PS1_BASE_LEFT}${PS1_TIMINGS}${PS1_GIT}${PS1_BASE_RIGHT}"
 	else
-		export PS1="${PS1_BASE_LEFT}${PS1_BASE_GIT}${PS1_BASE_RIGHT}"
+		export PS1="${PS1_BASE_LEFT}${PS1_TIMINGS}${PS1_GIT}${PS1_BASE_RIGHT}"
 	fi
 }
 
@@ -86,7 +170,7 @@ export PS1_BASE_PROMPT="${ANSI_LGRY}\$${ANSI_RST}"
 export PS1_BASE_LEFT="${PS1_BASE_TITLE}${PS1_BASE_LEFTDIV}${PS1_BASE_TIME} ${PS1_BASE_USER}${PS1_BASE_USERPATHDIV}${PS1_BASE_PATH}"
 export PS1_BASE_RIGHT="${PS1_BASE_RIGHTDIV}${PS1_BASE_PROMPT} "
 
-export PROMPT_COMMAND="terminal_prompt_git;terminal_prompt"
+export PROMPT_COMMAND="_prompt_timings_start;_prompt_set_column;_prompt_set_git;_prompt_set_timings;_prompt_set"
 
 ## LS COLOURS
 ##
