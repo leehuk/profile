@@ -111,8 +111,8 @@ _prompt_set_git() {
 	done
 
 	if [ $_GIT_REPO -eq 1 ]; then
-		PS1_GIT_BRANCH=${_GIT_BRANCH}
-		[ -z "$_GIT_BRANCH_REMOTE" ] && PS1_GIT_BRANCH="${ANSI_DRED}//${ANSI_RST}${PS1_GIT_BRANCH}"
+		PS1_GIT_BRANCH=${_GIT_BRANCH_LOCAL}
+		[ -z "$_GIT_BRANCH_REMOTE" ] && PS1_GIT_BRANCH="${ANSI_DRED}//${ANSI_RST}${_GIT_BRANCH_LOCAL}"
 
 		if [ $_GIT_BRANCH_CONFLICT -ne 0 ]; then
 			PS1_GIT_BCOL="$ANSI_DRED"
@@ -129,7 +129,7 @@ _prompt_set_git() {
 		PS1_GIT_LEFT="${PS1_GIT_BCOL}(${ANSI_RST}"
 		PS1_GIT_RIGHT="${PS1_GIT_BCOL})${ANSI_RST}"
 
-		if [ $_GIT_STATUS_CHANGED -ne 0 ] || [ $_GIT_STATUS_DELETED -ne 0 ] || [ $_GIT_STATUS_UNTRACKED -ne 0 ]; then
+		if [ $_GIT_FILES_CHANGED -ne 0 ] || [ $_GIT_FILES_DELETED -ne 0 ] || [ $_GIT_FILES_UNTRACKED -ne 0 ]; then
 			PS1_GIT_FILES="${ANSI_DYLW}**${ANSI_RST}"
 		else
 			PS1_GIT_FILES=""
