@@ -48,6 +48,7 @@ _prompt_set_git() {
 	local _GIT_BRANCH_REMOTE=""
 	local _GIT_BRANCH_BEHIND=0
 	local _GIT_BRANCH_AHEAD=0
+	local _GIT_BRANCH_CONFLICT=0
 
 	local _GIT_FILES_CHANGED=0
 	local _GIT_FILES_CONFLICT=0
@@ -80,7 +81,8 @@ _prompt_set_git() {
 				;;
 			# file modifications
 			"1 "*) ;&
-			"2 "*)
+			"2 "*) ;&
+			"u "*)
 				details=(${line})
 				case ${details[1]} in
 					"D.") ;&
@@ -91,6 +93,10 @@ _prompt_set_git() {
 					".M") ;&
 					"MM")
 						((_GIT_STATUS_CHANGED++))
+						;;
+					"UU")
+						_GIT_BRANCH_CONFLICT=1
+						((_GIT_FILES_CONFLICT++))
 						;;
 					*)
 						echo "Git Status: Unknown ${details[1]}"
@@ -108,7 +114,7 @@ _prompt_set_git() {
 		PS1_GIT_BRANCH=${_GIT_BRANCH}
 		[ -z "$_GIT_BRANCH_REMOTE" ] && PS1_GIT_BRANCH="${ANSI_DRED}//${ANSI_RST}${PS1_GIT_BRANCH}"
 
-		if [ $_GIT_STATUS_CONFLICT -ne 0 ]; then
+		if [ $_GIT_BRANCH_CONFLICT -ne 0 ]; then
 			PS1_GIT_BCOL="$ANSI_DRED"
 		elif [ $_GIT_BRANCH_BEHIND -ne 0 ] && [ $_GIT_BRANCH_AHEAD -ne 0 ]; then
 			PS1_GIT_BCOL="$ANSI_LBLU"
