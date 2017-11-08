@@ -49,7 +49,9 @@ _prompt_set_git() {
 	local _GIT_BRANCH_BEHIND=0
 	local _GIT_BRANCH_AHEAD=0
 	local _GIT_BRANCH_CONFLICT=0
+	local _GIT_BRANCH_PENDING=0
 
+	local _GIT_FILES_BITMASK=0
 	local _GIT_FILES_CHANGED=0
 	local _GIT_FILES_CONFLICT=0
 	local _GIT_FILES_DELETED=0
@@ -93,14 +95,23 @@ _prompt_set_git() {
 				;;
 			# file modifications
 			*)
-				details=(${line})
+				details=${line:0:2}
 				case ${details[0]} in
-					"M") ;&
-					"MM")
+					" M")
 						((_GIT_FILES_CHANGED++))
+						((_GIT_FILES_BITMASK|=1))
+						;;
+					" D")
+						((_GIT_FILES_DELETED++))
+						((_GIT_FILES_BITMASK|=2))
+						;;
+					"D ") ;&
+					"M ")
+						_GIT_BRANCH_PENDING=1
 						;;
 					"??")
 						((_GIT_FILES_UNTRACKED++))
+						((_GIT_FILES_BITMASK|=4))
 						;;
 					*)
 						echo "Git Status: Unknown ${details[0]}"
@@ -129,10 +140,26 @@ _prompt_set_git() {
 		PS1_GIT_LEFT="${PS1_GIT_BCOL}(${ANSI_RST}"
 		PS1_GIT_RIGHT="${PS1_GIT_BCOL})${ANSI_RST}"
 
-		if [ $_GIT_FILES_CHANGED -ne 0 ] || [ $_GIT_FILES_DELETED -ne 0 ] || [ $_GIT_FILES_UNTRACKED -ne 0 ]; then
+		if [ $((_GIT_FILES_BITMASK & 7)) == 7 ]; then
+			PS1_GIT_FILES="${ANSI_DYLW}##${ANSI_RST}"
+		elif [ $((_GIT_FILES_BITMASK & 6)) == 6 ]; then
+			PS1_GIT_FILES="${ANSI_DYLW}?-${ANSI_RST}"
+		elif [ $((_GIT_FILES_BITMASK & 5)) == 5 ]; then
+			PS1_GIT_FILES="${ANSI_DYLW}?*${ANSI_RST}"
+		elif [ $((_GIT_FILES_BITMASK & 3)) == 3 ]; then
+			PS1_GIT_FILES="${ANSI_DYLW}*-${ANSI_RST}"
+		elif [ $((_GIT_FILES_BITMASK & 4)) == 4 ]; then
+			PS1_GIT_FILES="${ANSI_DYLW}??${ANSI_RST}"
+		elif [ $((_GIT_FILES_BITMASK & 2)) == 2 ]; then
+			PS1_GIT_FILES="${ANSI_DYLW}--${ANSI_RST}"
+		elif [ $((_GIT_FILES_BITMASK & 1)) == 1 ]; then
 			PS1_GIT_FILES="${ANSI_DYLW}**${ANSI_RST}"
 		else
 			PS1_GIT_FILES=""
+		fi
+
+		if [ $_GIT_BRANCH_PENDING -ne 0 ]; then
+			PS1_GIT_FILES="${PS1_GIT_FILES}${ANSI_DYLW}>>${ANSI_RST}"
 		fi
 
 		export PS1_GIT=" ${PS1_GIT_LEFT}${PS1_GIT_BRANCH}${PS1_GIT_FILES}${PS1_GIT_RIGHT}"
