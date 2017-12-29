@@ -106,7 +106,8 @@ _prompt_set_git() {
 						((_GIT_FILES_BITMASK|=2))
 						;;
 					"D ") ;&
-					"M ")
+					"M ") ;&
+					"A ")
 						_GIT_BRANCH_PENDING=1
 						;;
 					"??")
