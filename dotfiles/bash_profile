@@ -228,5 +228,12 @@ stty stop ''
 stty start ''
 
 ## Aliases
+##
+# Enable colours
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
+# Docker for Windows
+grep Microsoft /proc/version >/dev/null
+if [ $? -eq 0 ]; then
+	alias docker='/mnt/c/Program\ Files/Docker/Docker/resources/bin/docker.exe'
+fi
