@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2016 Bailey Ling.
+" MIT License. Copyright (c) 2013-2018 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -86,7 +86,7 @@ function! airline#parts#iminsert()
 endfunction
 
 function! airline#parts#readonly()
-  if &readonly && &modifiable && !filereadable(bufname('%'))
+  if &readonly && !filereadable(bufname('%'))
     return '[noperm]'
   else
     return &readonly ? g:airline_symbols.readonly : ''

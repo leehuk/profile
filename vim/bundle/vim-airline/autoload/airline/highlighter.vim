@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2016 Bailey Ling.
+" MIT License. Copyright (c) 2013-2018 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -10,6 +10,7 @@ let s:is_win32term = (has('win32') || has('win64')) &&
 
 let s:separators = {}
 let s:accents = {}
+let s:hl_groups = {}
 
 function! s:gui2cui(rgb, fallback)
   if a:rgb == ''
@@ -47,14 +48,29 @@ function! s:get_array(fg, bg, opts)
         \ : [ '', '', a:fg, a:bg, opts ]
 endfunction
 
+function! airline#highlighter#reset_hlcache()
+  let s:hl_groups = {}
+endfunction
+
 function! airline#highlighter#get_highlight(group, ...)
-  let fg = s:get_syn(a:group, 'fg')
-  let bg = s:get_syn(a:group, 'bg')
-  let reverse = g:airline_gui_mode ==# 'gui'
-        \ ? synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'gui')
-        \ : synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'cterm')
-        \|| synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'term')
-  return reverse ? s:get_array(bg, fg, a:000) : s:get_array(fg, bg, a:000)
+  if get(g:, 'airline_highlighting_cache', 0) && has_key(s:hl_groups, a:group)
+    return s:hl_groups[a:group]
+  else
+    let fg = s:get_syn(a:group, 'fg')
+    let bg = s:get_syn(a:group, 'bg')
+    let reverse = g:airline_gui_mode ==# 'gui'
+          \ ? synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'gui')
+          \ : synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'cterm')
+          \|| synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'term')
+    let bold = synIDattr(synIDtrans(hlID(a:group)), 'bold')
+    let opts = a:000
+    if bold
+      let opts = ['bold']
+    endif
+    let res = reverse ? s:get_array(bg, fg, opts) : s:get_array(fg, bg, opts)
+  endif
+  let s:hl_groups[a:group] = res
+  return res
 endfunction
 
 function! airline#highlighter#get_highlight2(fg, bg, ...)
@@ -98,6 +114,9 @@ function! airline#highlighter#exec(group, colors)
         \ s:Get(colors, 4, 'gui='), s:Get(colors, 4, 'cterm='),
         \ s:Get(colors, 4, 'term='))
     exe cmd
+    if has_key(s:hl_groups, a:group)
+      let s:hl_groups[a:group] = colors
+    endif
   endif
 endfunction
 
@@ -135,7 +154,7 @@ endfunction
 
 function! s:Get(dict, key, prefix)
   let res=get(a:dict, a:key, '')
-  if empty(res)
+  if res is ''
     return ''
   else
     return a:prefix. res

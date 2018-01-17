@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2016 Bailey Ling.
+" MIT License. Copyright (c) 2013-2018 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -153,6 +153,11 @@ function! airline#extensions#load()
     call add(loaded_ext, 'netrw')
   endif
 
+  if has("terminal")
+    call airline#extensions#term#init(s:ext)
+    call add(loaded_ext, 'term')
+  endif
+
   if get(g:, 'airline#extensions#ycm#enabled', 0)
     call airline#extensions#ycm#init(s:ext)
     call add(loaded_ext, 'ycm')
@@ -222,6 +227,12 @@ function! airline#extensions#load()
         \ && exists('*bufferline#get_status_string')
     call airline#extensions#bufferline#init(s:ext)
     call add(loaded_ext, 'bufferline')
+  endif
+
+  if get(g:, 'airline#extensions#fugitiveline#enabled', 1)
+        \ && exists('*fugitive#head')
+    call airline#extensions#fugitiveline#init(s:ext)
+    call add(loaded_ext, 'fugitiveline')
   endif
 
   if (get(g:, 'airline#extensions#virtualenv#enabled', 1) && (exists(':VirtualEnvList') || isdirectory($VIRTUAL_ENV)))
@@ -300,6 +311,11 @@ function! airline#extensions#load()
     call add(loaded_ext, 'xkblayout')
   endif
 
+  if (get(g:, 'airline#extensions#keymap#enabled', 1) && has('keymap'))
+    call airline#extensions#keymap#init(s:ext)
+    call add(loaded_ext, 'keymap')
+  endif
+
   if (get(g:, 'airline#extensions#windowswap#enabled', 1) && get(g:, 'loaded_windowswap', 0))
     call airline#extensions#windowswap#init(s:ext)
     call add(loaded_ext, 'windowswap')
@@ -314,6 +330,11 @@ function! airline#extensions#load()
   if (get(g:, 'airline#extensions#vimtex#enabled', 1)) && exists('*vimtex#init')
    call airline#extensions#vimtex#init(s:ext)
    call add(loaded_ext, 'vimtex')
+  endif
+
+  if (get(g:, 'airline#extensions#cursormode#enabled', 0))
+    call airline#extensions#cursormode#init(s:ext)
+    call add(loaded_ext, 'cursormode')
   endif
 
   if !get(g:, 'airline#extensions#disable_rtp_load', 0)
@@ -337,4 +358,3 @@ function! airline#extensions#load()
     endfor
   endif
 endfunction
-
