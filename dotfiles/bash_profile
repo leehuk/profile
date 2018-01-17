@@ -106,9 +106,19 @@ _prompt_set_git() {
                         ((_GIT_FILES_BITMASK|=2))
                         ;;
                     "D ") ;&
-                    "M ") ;&
-                    "A ")
+                    "A ") ;&
+                    "R ") ;&
+                    "M ")
                         _GIT_BRANCH_PENDING=1
+                        ;;
+                    "RM") ;&
+                    "MM")
+                        _GIT_BRANCH_PENDING=1
+                        ((_GIT_FILES_CHANGED++))
+                        ((_GIT_FILES_BITMASK|=1))
+                        ;;
+                    "UU")
+                        ((_GIT_BRANCH_CONFLICT++))
                         ;;
                     "??")
                         ((_GIT_FILES_UNTRACKED++))
