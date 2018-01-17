@@ -23,173 +23,173 @@ export ANSI_WHT="\[\033[38;5;15m\]"
 export ANSI_RST="\[$(tput sgr0)\]"
 
 _prompt_timings_start() {
-	if [ $PROMPT_TIMINGS != 0 ]; then
-		local _START_TIME=$(date +%s%N)
-		export START_TIME=${_START_TIME:0:13}
-	fi
+    if [ $PROMPT_TIMINGS != 0 ]; then
+        local _START_TIME=$(date +%s%N)
+        export START_TIME=${_START_TIME:0:13}
+    fi
 }
 
 _prompt_set_timings() {
-	if [ $PROMPT_TIMINGS != 0 ]; then
-		local _STOP_TIME=$(date +%s%N)
-		local STOP_TIME=${_STOP_TIME:0:13}
+    if [ $PROMPT_TIMINGS != 0 ]; then
+        local _STOP_TIME=$(date +%s%N)
+        local STOP_TIME=${_STOP_TIME:0:13}
 
-		duration=$(($STOP_TIME-$START_TIME))
-		export PS1_TIMINGS=" ${ANSI_DGRY}{$duration}${ANSI_RST}"
-	else
-		export PS1_TIMINGS=""
-	fi
+        duration=$(($STOP_TIME-$START_TIME))
+        export PS1_TIMINGS=" ${ANSI_DGRY}{$duration}${ANSI_RST}"
+    else
+        export PS1_TIMINGS=""
+    fi
 }
 
 _prompt_set_git() {
-	local _GIT_REPO=0
+    local _GIT_REPO=0
 
-	local _GIT_BRANCH_LOCAL=""
-	local _GIT_BRANCH_REMOTE=""
-	local _GIT_BRANCH_BEHIND=0
-	local _GIT_BRANCH_AHEAD=0
-	local _GIT_BRANCH_CONFLICT=0
-	local _GIT_BRANCH_PENDING=0
+    local _GIT_BRANCH_LOCAL=""
+    local _GIT_BRANCH_REMOTE=""
+    local _GIT_BRANCH_BEHIND=0
+    local _GIT_BRANCH_AHEAD=0
+    local _GIT_BRANCH_CONFLICT=0
+    local _GIT_BRANCH_PENDING=0
 
-	local _GIT_FILES_BITMASK=0
-	local _GIT_FILES_CHANGED=0
-	local _GIT_FILES_CONFLICT=0
-	local _GIT_FILES_DELETED=0
-	local _GIT_FILES_UNTRACKED=0
+    local _GIT_FILES_BITMASK=0
+    local _GIT_FILES_CHANGED=0
+    local _GIT_FILES_CONFLICT=0
+    local _GIT_FILES_DELETED=0
+    local _GIT_FILES_UNTRACKED=0
 
-	local IFS=$'\n'
-	for line in `git status --branch --porcelain 2>/dev/null`; do
-		unset IFS
-		case $line in
-			"fatal: Not a git repository"*)
-				break
-				;;
-			# branch header
-			"## "*)
-				_GIT_REPO=1
+    local IFS=$'\n'
+    for line in `git status --branch --porcelain 2>/dev/null`; do
+        unset IFS
+        case $line in
+            "fatal: Not a git repository"*)
+                break
+                ;;
+            # branch header
+            "## "*)
+                _GIT_REPO=1
 
-				local details=(${line})
-				if [[ ${details[1]} =~ \.\.\. ]] ; then
-					local branch=(${details[1]/.../ })
-					_GIT_BRANCH_LOCAL=${branch[0]}
-					_GIT_BRANCH_REMOTE=${branch[1]}
-				else
-					_GIT_BRANCH_LOCAL=${details[1]}
-				fi
+                local details=(${line})
+                if [[ ${details[1]} =~ \.\.\. ]] ; then
+                    local branch=(${details[1]/.../ })
+                    _GIT_BRANCH_LOCAL=${branch[0]}
+                    _GIT_BRANCH_REMOTE=${branch[1]}
+                else
+                    _GIT_BRANCH_LOCAL=${details[1]}
+                fi
 
-				local branch_status_a=${details[@]:2}
-				local branch_status=${branch_status_a[*]}
+                local branch_status_a=${details[@]:2}
+                local branch_status=${branch_status_a[*]}
 
-				if [ -n "$branch_status" ]; then
-					branch_status=${branch_status#[}
-					branch_status=${branch_status%]}
-					branch_status=${branch_status/,/}
+                if [ -n "$branch_status" ]; then
+                    branch_status=${branch_status#[}
+                    branch_status=${branch_status%]}
+                    branch_status=${branch_status/,/}
 
-					if [[ $branch_status =~ ahead[[:space:]]([0-9]+) ]]; then
-						_GIT_BRANCH_AHEAD=${BASH_REMATCH[1]}
-					fi
-					if [[ $branch_status =~ behind[[:space:]]([0-9]+) ]]; then
-						_GIT_BRANCH_BEHIND=${BASH_REMATCH[1]}
-					fi
-				fi
-				;;
-			# file modifications
-			*)
-				details=${line:0:2}
-				case ${details[0]} in
-					" M")
-						((_GIT_FILES_CHANGED++))
-						((_GIT_FILES_BITMASK|=1))
-						;;
-					" D")
-						((_GIT_FILES_DELETED++))
-						((_GIT_FILES_BITMASK|=2))
-						;;
-					"D ") ;&
-					"M ") ;&
-					"A ")
-						_GIT_BRANCH_PENDING=1
-						;;
-					"??")
-						((_GIT_FILES_UNTRACKED++))
-						((_GIT_FILES_BITMASK|=4))
-						;;
-					*)
-						echo "Git Status: Unknown ${details[0]}"
-						;;
-				esac
-				;;
-		esac
-	done
+                    if [[ $branch_status =~ ahead[[:space:]]([0-9]+) ]]; then
+                        _GIT_BRANCH_AHEAD=${BASH_REMATCH[1]}
+                    fi
+                    if [[ $branch_status =~ behind[[:space:]]([0-9]+) ]]; then
+                        _GIT_BRANCH_BEHIND=${BASH_REMATCH[1]}
+                    fi
+                fi
+                ;;
+            # file modifications
+            *)
+                details=${line:0:2}
+                case ${details[0]} in
+                    " M")
+                        ((_GIT_FILES_CHANGED++))
+                        ((_GIT_FILES_BITMASK|=1))
+                        ;;
+                    " D")
+                        ((_GIT_FILES_DELETED++))
+                        ((_GIT_FILES_BITMASK|=2))
+                        ;;
+                    "D ") ;&
+                    "M ") ;&
+                    "A ")
+                        _GIT_BRANCH_PENDING=1
+                        ;;
+                    "??")
+                        ((_GIT_FILES_UNTRACKED++))
+                        ((_GIT_FILES_BITMASK|=4))
+                        ;;
+                    *)
+                        echo "Git Status: Unknown ${details[0]}"
+                        ;;
+                esac
+                ;;
+        esac
+    done
 
-	if [ $_GIT_REPO -eq 1 ]; then
-		PS1_GIT_BRANCH=${_GIT_BRANCH_LOCAL}
-		[ -z "$_GIT_BRANCH_REMOTE" ] && PS1_GIT_BRANCH="${ANSI_DRED}//${ANSI_RST}${_GIT_BRANCH_LOCAL}"
+    if [ $_GIT_REPO -eq 1 ]; then
+        PS1_GIT_BRANCH=${_GIT_BRANCH_LOCAL}
+        [ -z "$_GIT_BRANCH_REMOTE" ] && PS1_GIT_BRANCH="${ANSI_DRED}//${ANSI_RST}${_GIT_BRANCH_LOCAL}"
 
-		if [ $_GIT_BRANCH_CONFLICT -ne 0 ]; then
-			PS1_GIT_BCOL="$ANSI_DRED"
-		elif [ $_GIT_BRANCH_BEHIND -ne 0 ] && [ $_GIT_BRANCH_AHEAD -ne 0 ]; then
-			PS1_GIT_BCOL="$ANSI_LBLU"
-		elif [ $_GIT_BRANCH_BEHIND -ne 0 ]; then
-			PS1_GIT_BCOL="$ANSI_DPNK"
-		elif [ $_GIT_BRANCH_AHEAD -ne 0 ]; then
-			PS1_GIT_BCOL="$ANSI_LYLW"
-		else
-			PS1_GIT_BCOL="$ANSI_DGRN"
-		fi
+        if [ $_GIT_BRANCH_CONFLICT -ne 0 ]; then
+            PS1_GIT_BCOL="$ANSI_DRED"
+        elif [ $_GIT_BRANCH_BEHIND -ne 0 ] && [ $_GIT_BRANCH_AHEAD -ne 0 ]; then
+            PS1_GIT_BCOL="$ANSI_LBLU"
+        elif [ $_GIT_BRANCH_BEHIND -ne 0 ]; then
+            PS1_GIT_BCOL="$ANSI_DPNK"
+        elif [ $_GIT_BRANCH_AHEAD -ne 0 ]; then
+            PS1_GIT_BCOL="$ANSI_LYLW"
+        else
+            PS1_GIT_BCOL="$ANSI_DGRN"
+        fi
 
-		PS1_GIT_LEFT="${PS1_GIT_BCOL}(${ANSI_RST}"
-		PS1_GIT_RIGHT="${PS1_GIT_BCOL})${ANSI_RST}"
+        PS1_GIT_LEFT="${PS1_GIT_BCOL}(${ANSI_RST}"
+        PS1_GIT_RIGHT="${PS1_GIT_BCOL})${ANSI_RST}"
 
-		if [ $((_GIT_FILES_BITMASK & 7)) == 7 ]; then
-			PS1_GIT_FILES="${ANSI_DYLW}##${ANSI_RST}"
-		elif [ $((_GIT_FILES_BITMASK & 6)) == 6 ]; then
-			PS1_GIT_FILES="${ANSI_DYLW}?-${ANSI_RST}"
-		elif [ $((_GIT_FILES_BITMASK & 5)) == 5 ]; then
-			PS1_GIT_FILES="${ANSI_DYLW}?*${ANSI_RST}"
-		elif [ $((_GIT_FILES_BITMASK & 3)) == 3 ]; then
-			PS1_GIT_FILES="${ANSI_DYLW}*-${ANSI_RST}"
-		elif [ $((_GIT_FILES_BITMASK & 4)) == 4 ]; then
-			PS1_GIT_FILES="${ANSI_DYLW}??${ANSI_RST}"
-		elif [ $((_GIT_FILES_BITMASK & 2)) == 2 ]; then
-			PS1_GIT_FILES="${ANSI_DYLW}--${ANSI_RST}"
-		elif [ $((_GIT_FILES_BITMASK & 1)) == 1 ]; then
-			PS1_GIT_FILES="${ANSI_DYLW}**${ANSI_RST}"
-		else
-			PS1_GIT_FILES=""
-		fi
+        if [ $((_GIT_FILES_BITMASK & 7)) == 7 ]; then
+            PS1_GIT_FILES="${ANSI_DYLW}##${ANSI_RST}"
+        elif [ $((_GIT_FILES_BITMASK & 6)) == 6 ]; then
+            PS1_GIT_FILES="${ANSI_DYLW}?-${ANSI_RST}"
+        elif [ $((_GIT_FILES_BITMASK & 5)) == 5 ]; then
+            PS1_GIT_FILES="${ANSI_DYLW}?*${ANSI_RST}"
+        elif [ $((_GIT_FILES_BITMASK & 3)) == 3 ]; then
+            PS1_GIT_FILES="${ANSI_DYLW}*-${ANSI_RST}"
+        elif [ $((_GIT_FILES_BITMASK & 4)) == 4 ]; then
+            PS1_GIT_FILES="${ANSI_DYLW}??${ANSI_RST}"
+        elif [ $((_GIT_FILES_BITMASK & 2)) == 2 ]; then
+            PS1_GIT_FILES="${ANSI_DYLW}--${ANSI_RST}"
+        elif [ $((_GIT_FILES_BITMASK & 1)) == 1 ]; then
+            PS1_GIT_FILES="${ANSI_DYLW}**${ANSI_RST}"
+        else
+            PS1_GIT_FILES=""
+        fi
 
-		if [ $_GIT_BRANCH_PENDING -ne 0 ]; then
-			PS1_GIT_FILES="${PS1_GIT_FILES}${ANSI_DYLW}>>${ANSI_RST}"
-		fi
+        if [ $_GIT_BRANCH_PENDING -ne 0 ]; then
+            PS1_GIT_FILES="${PS1_GIT_FILES}${ANSI_DYLW}>>${ANSI_RST}"
+        fi
 
-		export PS1_GIT=" ${PS1_GIT_LEFT}${PS1_GIT_BRANCH}${PS1_GIT_FILES}${PS1_GIT_RIGHT}"
-	else
-		export PS1_GIT=""
-	fi
+        export PS1_GIT=" ${PS1_GIT_LEFT}${PS1_GIT_BRANCH}${PS1_GIT_FILES}${PS1_GIT_RIGHT}"
+    else
+        export PS1_GIT=""
+    fi
 }
 
 # _prompt_set_column()
 #   Detects the current terminal column position, saving it to PS1_COLUMN
 _prompt_set_column() {
-	exec < /dev/tty
-	local oldstty=$(stty -g)
-	stty raw -echo min 0
-	echo -en "\033[6n" > /dev/tty
-	local pos
-	IFS=';' read -r -d R -a pos
-	stty $oldstty
-	export PS1_COLUMN=$((${pos[1]} - 1))
+    exec < /dev/tty
+    local oldstty=$(stty -g)
+    stty raw -echo min 0
+    echo -en "\033[6n" > /dev/tty
+    local pos
+    IFS=';' read -r -d R -a pos
+    stty $oldstty
+    export PS1_COLUMN=$((${pos[1]} - 1))
 }
 
 # _prompt_set()
-#	Finalises PS1 prompt, with a newline if required
+#    Finalises PS1 prompt, with a newline if required
 _prompt_set() {
-	if [ $PS1_COLUMN != '0' ]; then
-		export PS1="\n${PS1_BASE_LEFT}${PS1_TIMINGS}${PS1_GIT}${PS1_BASE_RIGHT}"
-	else
-		export PS1="${PS1_BASE_LEFT}${PS1_TIMINGS}${PS1_GIT}${PS1_BASE_RIGHT}"
-	fi
+    if [ $PS1_COLUMN != '0' ]; then
+        export PS1="\n${PS1_BASE_LEFT}${PS1_TIMINGS}${PS1_GIT}${PS1_BASE_RIGHT}"
+    else
+        export PS1="${PS1_BASE_LEFT}${PS1_TIMINGS}${PS1_GIT}${PS1_BASE_RIGHT}"
+    fi
 }
 
 export PS1_BASE_TITLE="\[\033]0;\u@\h:\W\007\]"
@@ -236,5 +236,5 @@ alias grep='grep --color=auto'
 # Docker for Windows
 grep Microsoft /proc/version >/dev/null
 if [ $? -eq 0 ]; then
-	alias docker='/mnt/c/Program\ Files/Docker/Docker/resources/bin/docker.exe'
+    alias docker='/mnt/c/Program\ Files/Docker/Docker/resources/bin/docker.exe'
 fi
