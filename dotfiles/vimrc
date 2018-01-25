@@ -5,8 +5,10 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#fnamemod = ':t'
 
 set expandtab
-set shiftwidth=4
+set sw=4
 set ts=4
+
+auto Filetype go setlocal ts=4 sw=4 noexpandtab
 
 nmap <C-q> :bnext!<CR>
 imap <C-q> <ESC>:bnext!<CR>
