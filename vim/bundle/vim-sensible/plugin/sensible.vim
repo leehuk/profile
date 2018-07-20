@@ -1,6 +1,6 @@
 " sensible.vim - Defaults everyone can agree on
 " Maintainer:   Tim Pope <http://tpo.pe/>
-" Version:      1.1
+" Version:      1.2
 
 if exists('g:loaded_sensible') || &compatible
   finish
@@ -78,7 +78,10 @@ endif
 if !empty(&viminfo)
   set viminfo^=!
 endif
-set sessionoptions-=options
+if &sessionoptions =~# '\<options\>'
+  set sessionoptions-=options
+  set sessionoptions+=localoptions
+endif
 
 " Allow color schemes to do bright colors without forcing bold.
 if &t_Co == 8 && $TERM !~# '^linux\|^Eterm'
