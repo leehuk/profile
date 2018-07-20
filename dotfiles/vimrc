@@ -9,6 +9,7 @@ set sw=4
 set ts=4
 
 auto Filetype go setlocal ts=4 sw=4 noexpandtab
+auto Filetype yaml setlocal ts=2 sw=2 expandtab
 
 nmap <C-q> :bnext!<CR>
 imap <C-q> <ESC>:bnext!<CR>
