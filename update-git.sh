@@ -18,6 +18,8 @@ git_clone_vimbundle "vim-airline" "https://github.com/vim-airline/vim-airline.gi
 git_clone_vimbundle "vim-fugitive" "https://github.com/tpope/vim-fugitive.git"
 git_clone_vimbundle "vim-pathogen" "https://github.com/tpope/vim-pathogen.git"
 git_clone_vimbundle "vim-sensible" "https://github.com/tpope/vim-sensible.git"
+git_clone_vimbundle "vim-syntastic" "https://github.com/vim-syntastic/syntastic.git"
+git_clone_vimbundle "nerdtree-git-plugin" "https://github.com/Xuyuanp/nerdtree-git-plugin.git"
 
 rm -rf "vim/autoload"
 mkdir "vim/autoload"
