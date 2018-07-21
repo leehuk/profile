@@ -111,6 +111,7 @@ _prompt_set_git() {
                     "M ")
                         _GIT_BRANCH_PENDING=1
                         ;;
+                    "AM") ;&
                     "RD") ;&
                     "RM") ;&
                     "MM")
