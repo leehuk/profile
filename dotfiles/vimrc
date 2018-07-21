@@ -1,9 +1,16 @@
 function! MyHighlights() abort
-    highlight Normal        ctermfg=grey ctermbg=black
-    highlight Folded        ctermfg=darkgrey ctermbg=black
-    highlight SignColumn    term=standout ctermfg=14 ctermbg=black
-    highlight DiffAdd       term=bold cterm=bold ctermfg=green ctermbg=black
-    highlight DiffDelete    term=bold cterm=bold ctermfg=red ctermbg=black
+    highlight Normal                    ctermfg=grey ctermbg=black
+    highlight Folded                    ctermfg=darkgrey ctermbg=black
+    highlight SignColumn                term=standout ctermfg=14 ctermbg=black
+
+    highlight DiffAdd                   term=bold cterm=bold ctermfg=darkgreen ctermbg=black
+    highlight DiffChange                term=bold cterm=bold ctermfg=darkgray ctermbg=black
+    highlight DiffDelete                term=bold cterm=bold ctermfg=darkred ctermbg=black
+
+    highlight GitGutterAdd              term=bold cterm=bold ctermfg=white ctermbg=darkgreen
+    highlight GitGutterChange           term=bold cterm=bold ctermfg=white ctermbg=darkgray
+    highlight GitGutterDelete           term=bold cterm=bold ctermfg=white ctermbg=darkred
+    highlight GitGutterChangeDelete     term=bold cterm=bold ctermfg=darkred ctermbg=darkgray
 endfunction
 
 augroup MyColors
@@ -23,6 +30,9 @@ set expandtab
 set sw=4
 set ts=4
 
+" For gitgutter
+set updatetime=500
+
 auto Filetype go setlocal ts=4 sw=4 noexpandtab
 auto Filetype ruby setlocal ts=2 sw=2 expandtab
 auto Filetype yaml setlocal ts=2 sw=2 expandtab
@@ -39,6 +49,9 @@ imap <C-e> <ESC>:wincmd w<CR>
 
 nmap <C-n> :NERDTreeToggle<CR>
 imap <C-n> <ESC>:NERDTreeToggle<CR>
+
+nmap <C-g> :GitGutterLineHighlightsToggle<CR>
+imap <C-g> <ESC>:GitGutterLineHighlightsToggle<CR>
 
 " Close nerdtree when its the last remaining window
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
