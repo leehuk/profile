@@ -24,7 +24,11 @@ colorscheme slate
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#fnamemod = ':t'
 
+let g:gitgutter_override_sign_column_highlight = 0
+
 let g:syntastic_yaml_checkers = ['yamllint']
+
+let mapleader = ","
 
 set expandtab
 set sw=4
@@ -52,6 +56,11 @@ imap <C-n> <ESC>:NERDTreeToggle<CR>
 
 nmap <C-g> :GitGutterLineHighlightsToggle<CR>
 imap <C-g> <ESC>:GitGutterLineHighlightsToggle<CR>
+
+nmap <Leader>ga     <Plug>GitGutterStageHunk
+nmap <Leader>gv     <Plug>GitGutterPreviewHunk
+nmap gn             <Plug>GitGutterNextHunk
+nmap gp             <Plug>GitGutterPrevHunk
 
 " Close nerdtree when its the last remaining window
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
