@@ -1,3 +1,16 @@
+function! MyHighlights() abort
+    highlight Normal        ctermfg=grey ctermbg=black
+    highlight Folded        ctermfg=darkgrey ctermbg=black
+    highlight SignColumn    term=standout ctermfg=14 ctermbg=black
+    highlight DiffAdd       term=bold cterm=bold ctermfg=green ctermbg=black
+    highlight DiffDelete    term=bold cterm=bold ctermfg=red ctermbg=black
+endfunction
+
+augroup MyColors
+    autocmd!
+    autocmd ColorScheme * call MyHighlights()
+augroup END
+
 set background=dark
 colorscheme slate
 
