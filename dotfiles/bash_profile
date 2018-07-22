@@ -250,5 +250,13 @@ stty start ''
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 # Git
+alias gc='git checkout'
+alias gd='git diff'
 alias gp='git pull'
-alias git-prune="git branch --merged | egrep -v '(^\*|master|release)'  |xargs git branch -d"
+# Add autocompletes for git aliases
+_completion_loader git
+__git_complete gc _git_checkout
+__git_complete gd _git_diff
+__git_complete gp _git_pull
+# Git helpers
+alias git-prune="git branch --merged | egrep -v '(^\*|master|release)'  |xargs -r git branch -d"
