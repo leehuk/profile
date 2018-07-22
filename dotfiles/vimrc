@@ -1,32 +1,12 @@
-function! MyHighlights() abort
-    highlight Normal                    ctermfg=grey ctermbg=black
-    highlight Folded                    ctermfg=darkgrey ctermbg=black
-    highlight SignColumn                term=standout ctermfg=14 ctermbg=black
-
-    highlight DiffAdd                   term=bold cterm=bold ctermfg=darkgreen ctermbg=black
-    highlight DiffChange                term=bold cterm=bold ctermfg=darkgray ctermbg=black
-    highlight DiffDelete                term=bold cterm=bold ctermfg=darkred ctermbg=black
-
-    highlight GitGutterAdd              term=bold cterm=bold ctermfg=darkgreen ctermbg=black
-    highlight GitGutterChange           term=bold cterm=bold ctermfg=gray ctermbg=black
-    highlight GitGutterDelete           term=bold cterm=bold ctermfg=darkred ctermbg=black
-    highlight GitGutterChangeDelete     term=bold cterm=bold ctermfg=darkcyan ctermbg=black
-endfunction
-
-augroup MyColors
-    autocmd!
-    autocmd ColorScheme * call MyHighlights()
-augroup END
-
+" Colour management
 set t_Co=256
 set background=dark
-colorscheme slate
+colorscheme darkness
 
+" Plugin options
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#fnamemod = ':t'
-
 let g:gitgutter_override_sign_column_highlight = 0
-
 let g:syntastic_yaml_checkers = ['yamllint']
 
 let mapleader = ","
@@ -67,6 +47,9 @@ nmap gu     <Plug>GitGutterUndoHunk
 nmap gv     <Plug>GitGutterPreviewHunk
 nmap gn     <Plug>GitGutterNextHunk
 nmap gp     <Plug>GitGutterPrevHunk
+
+" Helper to determine syntax highlighting
+nmap zz     :echo synIDattr(synID(line("."), col("."), 1), "name")<CR>
 
 " Close nerdtree when its the last remaining window
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
