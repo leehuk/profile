@@ -7,10 +7,10 @@ function! MyHighlights() abort
     highlight DiffChange                term=bold cterm=bold ctermfg=darkgray ctermbg=black
     highlight DiffDelete                term=bold cterm=bold ctermfg=darkred ctermbg=black
 
-    highlight GitGutterAdd              term=bold cterm=bold ctermfg=white ctermbg=darkgreen
-    highlight GitGutterChange           term=bold cterm=bold ctermfg=white ctermbg=darkgray
-    highlight GitGutterDelete           term=bold cterm=bold ctermfg=white ctermbg=darkred
-    highlight GitGutterChangeDelete     term=bold cterm=bold ctermfg=darkred ctermbg=darkgray
+    highlight GitGutterAdd              term=bold cterm=bold ctermfg=darkgreen ctermbg=black
+    highlight GitGutterChange           term=bold cterm=bold ctermfg=gray ctermbg=black
+    highlight GitGutterDelete           term=bold cterm=bold ctermfg=darkred ctermbg=black
+    highlight GitGutterChangeDelete     term=bold cterm=bold ctermfg=darkcyan ctermbg=black
 endfunction
 
 augroup MyColors
@@ -18,6 +18,7 @@ augroup MyColors
     autocmd ColorScheme * call MyHighlights()
 augroup END
 
+set t_Co=256
 set background=dark
 colorscheme slate
 
@@ -30,37 +31,42 @@ let g:syntastic_yaml_checkers = ['yamllint']
 
 let mapleader = ","
 
+" For gitgutter
+set updatetime=500
+
+" Formatting options
 set expandtab
 set sw=4
 set ts=4
 
-" For gitgutter
-set updatetime=500
-
-auto Filetype go setlocal ts=4 sw=4 noexpandtab
+auto Filetype go   setlocal ts=4 sw=4 noexpandtab
 auto Filetype ruby setlocal ts=2 sw=2 expandtab
 auto Filetype yaml setlocal ts=2 sw=2 expandtab
 
-nmap <C-q> :bnext!<CR>
-imap <C-q> <ESC>:bnext!<CR>
-nmap <C-a> :bprevious!<CR>
-imap <C-a> <ESC>:bprevious!<CR>
+" Buffer movement
+nmap <C-q>  :bnext!<CR>
+imap <C-q>  <ESC>:bnext!<CR>
+nmap <C-a>  :bprevious!<CR>
+imap <C-a>  <ESC>:bprevious!<CR>
 nmap <C-s>q :bprevious<CR>:bdelete #<CR>
 nmap <C-s>x :bprevious!<CR>:bdelete! #<CR>
 
-nmap <C-e> :wincmd w<CR>
-imap <C-e> <ESC>:wincmd w<CR>
+" Window movement
+nmap <C-e>  :wincmd w<CR>
+imap <C-e>  <ESC>:wincmd w<CR>
 
-nmap <C-n> :NERDTreeToggle<CR>
-imap <C-n> <ESC>:NERDTreeToggle<CR>
+" NERDTree
+nmap <C-n>  :NERDTreeToggle<CR>
+imap <C-n>  <ESC>:NERDTreeToggle<CR>
 
-nmap <C-g> :GitGutterLineHighlightsToggle<CR>
-imap <C-g> <ESC>:GitGutterLineHighlightsToggle<CR>
-
-nmap <Leader>ga     <Plug>GitGutterStageHunk
-nmap <Leader>gv     <Plug>GitGutterPreviewHunk
-nmap gn             <Plug>GitGutterNextHunk
-nmap gp             <Plug>GitGutterPrevHunk
+" gitgutter
+nmap <C-g>  :GitGutterLineHighlightsToggle<CR>
+imap <C-g>  <ESC>:GitGutterLineHighlightsToggle<CR>
+nmap ga     <Plug>GitGutterStageHunk
+nmap gu     <Plug>GitGutterUndoHunk
+nmap gv     <Plug>GitGutterPreviewHunk
+nmap gn     <Plug>GitGutterNextHunk
+nmap gp     <Plug>GitGutterPrevHunk
 
 " Close nerdtree when its the last remaining window
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
