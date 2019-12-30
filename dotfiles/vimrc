@@ -12,6 +12,7 @@ let g:syntastic_yaml_checkers = ['yamllint']
 let mapleader = ","
 
 " For gitgutter
+set signcolumn=yes
 set updatetime=500
 
 " Formatting options
@@ -22,6 +23,7 @@ set ts=4
 auto Filetype go   setlocal ts=4 sw=4 noexpandtab
 auto Filetype ruby setlocal ts=2 sw=2 expandtab
 auto Filetype yaml setlocal ts=2 sw=2 expandtab
+auto Filetype tf   setlocal ts=2 sw=2 expandtab
 
 " Buffer movement
 nmap <C-q>  :bnext!<CR>
@@ -42,6 +44,7 @@ imap <C-n>  <ESC>:NERDTreeToggle<CR>
 " gitgutter
 nmap <C-g>  :GitGutterLineHighlightsToggle<CR>
 imap <C-g>  <ESC>:GitGutterLineHighlightsToggle<CR>
+nmap <C-f>  :set scl=no<CR>
 nmap ga     <Plug>GitGutterStageHunk
 nmap gu     <Plug>GitGutterUndoHunk
 nmap gv     <Plug>GitGutterPreviewHunk

@@ -25,7 +25,7 @@ hi GitGutterAdd          cterm=bold ctermbg=none ctermfg=112
 hi GitGutterChange       cterm=bold ctermbg=none ctermfg=117
 hi GitGutterDelete       cterm=bold ctermbg=none ctermfg=196
 hi GitGutterChangeDelete cterm=bold ctermbg=none ctermfg=darkcyan
-hi SignColumn            cterm=bold ctermbg=none ctermfg=15
+hi SignColumn            cterm=bold ctermbg=237  ctermfg=15
 
 hi! def link shShellVariables   Identifier
 hi! def link rubyDefine         Statement

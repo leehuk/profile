@@ -260,3 +260,7 @@ __git_complete gd _git_diff
 __git_complete gp _git_pull
 # Git helpers
 alias git-prune="git branch --merged | egrep -v '(^\*|master|release)'  |xargs -r git branch -d"
+alias git-prune-origin="git remote update origin --prune"
+# Docker helpers
+alias docker-prune-containers="docker ps -a | tail -n +2 | grep "Exited" | awk '{print \$1}' | xargs -rn1 docker rm"
+alias docker-prune-images="docker images | tail -n +2 |grep '<none>' | awk '{print \$3}' | xargs -rn1 docker rmi"
