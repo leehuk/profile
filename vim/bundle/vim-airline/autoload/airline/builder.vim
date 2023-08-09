@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2018 Bailey Ling et al.
+" MIT License. Copyright (c) 2013-2021 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -133,16 +133,12 @@ function! airline#builder#should_change_group(group1, group2)
   endif
   let color1 = airline#highlighter#get_highlight(a:group1)
   let color2 = airline#highlighter#get_highlight(a:group2)
-  if g:airline_gui_mode ==# 'gui'
-    return color1[1] != color2[1] || color1[0] != color2[0]
-  else
-    return color1[3] != color2[3] || color1[2] != color2[2]
-  endif
+  return color1[1] != color2[1] || color1[0] != color2[0]
+      \ ||  color1[2] != color2[2] || color1[3] != color2[3]
 endfunction
 
 function! s:get_transitioned_seperator(self, prev_group, group, side)
   let line = ''
-  call airline#highlighter#add_separator(a:prev_group, a:group, a:side)
   if get(a:self._context, 'tabline', 0) && get(g:, 'airline#extensions#tabline#alt_sep', 0) && a:group ==# 'airline_tabsel' && a:side
     call airline#highlighter#add_separator(a:prev_group, a:group, 0)
     let line .= '%#'.a:prev_group.'_to_'.a:group.'#'
@@ -166,6 +162,7 @@ endfunction
 
 function! s:get_accented_line(self, group, contents)
   if a:self._context.active
+    " active window
     let contents = []
     let content_parts = split(a:contents, '__accent')
     for cpart in content_parts
@@ -175,6 +172,7 @@ function! s:get_accented_line(self, group, contents)
     let line = join(contents, a:group)
     let line = substitute(line, '__restore__', a:group, 'g')
   else
+    " inactive window
     let line = substitute(a:contents, '%#__accent[^#]*#', '', 'g')
     let line = substitute(line, '%#__restore__#', '', 'g')
   endif
@@ -200,20 +198,22 @@ function! s:section_is_empty(self, content)
   if get(w:, 'airline_skip_empty_sections', -1) == 0
     return 0
   endif
-  " assume accents sections to be never empty
-  " (avoides, that on startup the mode message becomes empty)
-  if match(a:content, '%#__accent_[^#]*#.*__restore__#') > -1
-    return 0
-  endif
+
   if empty(a:content)
     return 1
   endif
-  let list=matchlist(a:content, '%{\zs.\{-}\ze}', 1, start)
-  if empty(list)
-    return 0 " no function in statusline text
+
+  let stripped = substitute(a:content,
+        \ '\(%{.*}\|%#__accent_[^#]*#\|%#__restore__#\|%( \| %)\)', '', 'g')
+
+  if !empty(stripped)
+    return 0 " There is content in the statusline
   endif
-  while len(list) > 0
-    let expr = list[0]
+
+  let exprlist = []
+  call substitute(a:content, '%{\([^}]*\)}', '\=add(exprlist, submatch(1))', 'g')
+
+  for expr in exprlist
     try
       " catch all exceptions, just in case
       if !empty(eval(expr))
@@ -222,9 +222,7 @@ function! s:section_is_empty(self, content)
     catch
       return 0
     endtry
-    let start += 1
-    let list=matchlist(a:content, '%{\zs.\{-}\ze}', 1, start)
-  endw
+  endfor
   return 1
 endfunction
 

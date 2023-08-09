@@ -5,7 +5,7 @@ git_clone_vimbundle() {
     git=$2
 
     git clone --depth 1 "${git}" "vim/bundle/${dir}"
-    rm -rf "vim/bundle/${dir}/.git"
+    rm -rf "vim/bundle/${dir}/.git" "vim/bundle/${dir}/.github"
 }
 
 cd `dirname $0`
