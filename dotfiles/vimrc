@@ -47,7 +47,7 @@ imap <C-g>  <ESC>:GitGutterLineHighlightsToggle<CR>
 nmap <C-f>  :set scl=no<CR>
 nmap ga     <Plug>GitGutterStageHunk
 nmap gu     <Plug>GitGutterUndoHunk
-nmap gv     <Plug>GitGutterPreviewHunk
+nmap gq     <Plug>GitGutterPreviewHunk
 nmap gn     <Plug>GitGutterNextHunk
 nmap gp     <Plug>GitGutterPrevHunk
 

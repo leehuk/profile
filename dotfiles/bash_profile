@@ -97,7 +97,8 @@ _prompt_set_git() {
             *)
                 details=${line:0:2}
                 case ${details[0]} in
-                    " M")
+                    " M") ;&
+                    " T")
                         ((_GIT_FILES_CHANGED++))
                         ((_GIT_FILES_BITMASK|=1))
                         ;;
